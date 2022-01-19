@@ -7,6 +7,7 @@ from brownie import (
 
 FORKED_LOCAL_ENVIRONMENTS = ["mainnet-fork", "mainnet-fork-dev"]
 LOCAL_BLOCKCHAIN_ENVIRONMENTS = ["development", "genache-local"]
+OPENSEA_URL = "https://testnets.opensea.io/assets/{}/{}"
 
 
 def get_account(index=None, id=None):
