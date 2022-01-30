@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "base64-sol/base64.sol";
+import "./Base64.sol";
 
 contract SimpleCollectible is
     ERC721,
@@ -17,9 +17,12 @@ contract SimpleCollectible is
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
 
-    constructor() public ERC721("Lottery Ticket", "LOTT") {}
+    constructor() ERC721("Lottery Ticket", "LOTT") {}
 
-    function createLotteryTicket(uint256[] entries) public returns (uint256) {
+    function createLotteryTicket(uint256[] memory entries)
+        public
+        returns (uint256)
+    {
         _tokenIds.increment();
 
         uint256 newItemId = _tokenIds.current();
@@ -27,12 +30,13 @@ contract SimpleCollectible is
         _setTokenURI(newItemId, tokenURI(newItemId, entries));
     }
 
-    function tokenURI(uint256 tokenId, uint256[] entries)
+    function tokenURI(uint256 tokenId, uint256[] memory entries)
         public
         view
         returns (string memory)
     {
-        string[3 + entries.length] memory parts;
+        uint256 partSize = 3 + entries.length;
+        string[] memory parts;
         parts[
             0
         ] = '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350"><style>.base { fill: white; font-family: serif; font-size: 14px; }</style><rect width="100%" height="100%" fill="black" /><text x="10" y="20" class="base">';
@@ -80,6 +84,26 @@ contract SimpleCollectible is
     function ownerClaim(uint256 tokenId) public nonReentrant onlyOwner {
         require(tokenId > 7777 && tokenId < 8001, "Token ID invalid");
         _safeMint(owner(), tokenId);
+    }
+
+    function _burn(uint256 tokenId)
+        internal
+        override(ERC721, ERC721URIStorage)
+    {
+        super._burn(tokenId);
+    }
+
+    function tokenURI(uint256 tokenId)
+        public
+        view
+        override(ERC721, ERC721URIStorage)
+        returns (string memory)
+    {
+        return super.tokenURI(tokenId);
+    }
+
+    function _baseURI() internal pure override returns (string memory) {
+        return "https://foo.com/token/";
     }
 
     function toString(uint256 value) internal pure returns (string memory) {
